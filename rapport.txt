@@ -1,0 +1,446 @@
+A)
+
+A.1) A quelle valeur de fréquence correspondrait le pic de droite
+
+On peut lire sur le graphique les coordonnées des pics :
+
+Pic de gauche : 
+- X = 52
+- Y = 239
+Pic de droite :
+- X = 462
+- Y = 239
+
+Calculons la fréquence du pic de droite :
+
+Fréquence du pic de droite = (indice x Fs) / N = (462 x 1000) / 512 ~= 902 Hz
+
+Le pic de droite correspond à la composante symétrique du spectre. Pour un signal réel, la FFT produit un spectre symétrique : si on a une composante à la fréquence f, on observe aussi une composante à Fs - f. C'est pourquoi les deux pics ont la même amplitude (y=239).
+
+On peut vérifier ce lien entre les 2 composantes :
+
+Fs - F = 1000 - 100 = 900 Hz ~= Fréquence du pic de droite
+
+A.2) A quelle valeur de fréquence correspond l’échantillon 512 ?
+
+Pour l’échantillon 512, avec une FFT de 512 points et une fréquence d'échantillonnage Fs = 1000 Hz :
+
+Fréquence = (indice - 1) × Fs / N = (512 - 1) × 1000 / 512 = 511 × 1000 / 512 = 998.05 Hz
+
+L'échantillon 512 correspond à environ 998 Hz, soit juste avant la fréquence d'échantillonnage Fs.
+
+Du fait de la symétrie, on peut faire le choix de limiter l'affichage à [0, Fs/2] pour la suite du TP.
+
+B) Effet de la variation de la fréquence d'échantillonnage
+
+Note : L'affichage est limité à [0, Fs/2] pour visualiser uniquement la partie utile du spectre.
+
+=== OBSERVATIONS ===
+
+Lorsqu'on diminue progressivement la fréquence Fs, on observe :
+
+• Fs = 1000 Hz :
+  - Pic net et bien défini à 100 Hz (fréquence du signal)
+  - Spectre clair et précis
+  - Bande de fréquence affichée : [0, 500 Hz]
+
+• Fs = 500 Hz :
+  - Pic à 100 Hz toujours bien identifiable
+  - Légère dégradation de la résolution
+  - Bande de fréquence affichée : [0, 250 Hz]
+
+• Fs = 300 Hz :
+  - Pic à 100 Hz visible mais avec élargissement de sa base
+  - Début de dégradation de la qualité spectrale
+  - Bande de fréquence affichée : [0, 150 Hz]
+
+• Fs = 250 Hz :
+  - Pic moins net, courbe commence à se déformer
+  - Augmentation des variations/oscillations autour du pic
+  - Qualité spectrale significativement dégradée
+  - Bande de fréquence affichée : [0, 125 Hz]
+
+• Fs = 200 Hz :
+  - **Le pic à 100 Hz a disparu !**
+  - Courbe très bruitée avec beaucoup de variations
+  - Spectre complètement déformé et inexploitable
+  - Bande de fréquence affichée : [0, 100 Hz]
+  - Signal complètement détruit par l'aliasing
+
+
+=== INTERPRÉTATION DES RÉSULTATS ===
+
+1) **Théorème de Shannon (critère de Nyquist)** :
+   Pour échantillonner correctement un signal de fréquence f, il faut :
+   
+   Fs > 2 × f    (Fréquence de Nyquist)
+   
+   Dans notre cas avec f = 100 Hz : Fs doit être > 200 Hz
+
+   ✓ Fs = 1000, 500, 300, 250 Hz → Respectent le critère (Fs > 200 Hz)
+   ✗ Fs = 200 Hz → **À la limite critique** (Fs = 2f exactement)
+
+2) **Phénomène d'aliasing (repliement spectral)** :
+   À Fs = 200 Hz, on atteint exactement la fréquence de Nyquist (Fs/2 = 100 Hz).
+   
+   → Le signal à 100 Hz est pile à la limite de la fréquence de Nyquist
+   → Le signal ne peut plus être représenté correctement
+   → Les fréquences se "replient" et créent des interférences
+   → Destruction de l'information fréquentielle originale
+   → C'est pourquoi le pic disparaît et le spectre devient chaotique
+   
+   Important : En affichant uniquement [0, Fs/2], on observe directement la zone 
+   critique où l'aliasing se produit. Quand Fs/2 = f, la fréquence est à la limite 
+   exacte de ce qui peut être représenté.
+
+3) **Résolution fréquentielle** :
+   La résolution spectrale Δf = Fs / N diminue avec Fs :
+   
+   - Fs = 1000 Hz : Δf = 1000/512 = 1.95 Hz (excellente résolution)
+   - Fs = 500 Hz  : Δf = 500/512 = 0.98 Hz (bonne résolution)
+   - Fs = 250 Hz  : Δf = 250/512 = 0.49 Hz (résolution apparemment fine)
+   - Fs = 200 Hz  : Δf = 200/512 = 0.39 Hz (résolution fine mais signal mal échantillonné)
+   
+   → Plus Fs diminue, moins on a de points pour représenter le signal temporel
+   → Les pics s'élargissent car il y a moins d'échantillons disponibles
+   → La fenêtre d'observation [0, Fs/2] se réduit progressivement
+   → À Fs = 200 Hz, la fenêtre [0, 100 Hz] ne contient que la limite critique
+
+4) **Nombre d'échantillons et qualité du signal** :
+   Sur une durée de 1 seconde :
+   
+   - Fs = 1000 Hz → 1000 échantillons (10 points par période du signal à 100 Hz)
+   - Fs = 500 Hz  → 500 échantillons (5 points par période)
+   - Fs = 250 Hz  → 250 échantillons (2,5 points par période)
+   - Fs = 200 Hz  → 200 échantillons (2 points par période seulement !)
+   
+   → Moins d'échantillons = représentation moins fidèle du signal
+   → À 200 Hz, seulement 2 points par oscillation : insuffisant pour capturer la forme sinusoïdale
+   → Le signal temporel est tellement sous-échantillonné que la FFT ne peut plus 
+      extraire correctement sa fréquence
+
+5) **Impact de l'affichage [0, Fs/2]** :
+   En limitant l'affichage à [0, Fs/2], on visualise uniquement la bande passante utile :
+   
+   - Évite la redondance du spectre symétrique
+   - Concentre l'observation sur la zone physiquement significative
+   - Montre clairement comment Fs/2 se rapproche de f = 100 Hz
+   - Met en évidence le phénomène d'aliasing quand f atteint Fs/2
+
+
+=== CONCLUSION ===
+
+Ces observations confirment l'importance cruciale du théorème de Shannon en traitement du signal numérique :
+
+→ Il faut TOUJOURS échantillonner à une fréquence au moins 2 fois supérieure à la fréquence maximale du signal
+→ En pratique, on prend Fs >> 2f (souvent 5 à 10 fois) pour avoir une marge de sécurité
+→ Un sous-échantillonnage (Fs < 2f) entraîne une perte irréversible d'information (aliasing)
+
+C) Modification du nombre de points d'analyse de la FFT
+
+Note : Fs fixe à 1000 Hz, signal à 100 Hz, affichage limité à [0, 500 Hz]
+
+=== OBSERVATIONS ===
+
+En variant le nombre de points N de la FFT, on observe :
+
+• N = 128 points :
+  - Pic large et peu défini à 100 Hz
+  - Base du pic très élargie
+  - Résolution fréquentielle : Δf = 1000/128 = 7.81 Hz
+  - Pic "flou" s'étendant sur plusieurs bins fréquentiels
+
+• N = 256 points :
+  - Pic mieux défini qu'à 128 points
+  - Largeur du pic réduite
+  - Résolution fréquentielle : Δf = 1000/256 = 3.91 Hz
+  - Amélioration visible de la netteté
+
+• N = 512 points :
+  - Pic net et bien localisé à 100 Hz
+  - Base du pic nettement plus étroite
+  - Résolution fréquentielle : Δf = 1000/512 = 1.95 Hz
+  - Bonne qualité spectrale
+
+• N = 1024 points :
+  - Pic très fin et précis
+  - Excellente localisation fréquentielle
+  - Résolution fréquentielle : Δf = 1000/1024 = 0.98 Hz
+  - Amplitude légèrement augmentée
+
+• N = 2048 points :
+  - Pic extrêmement fin et précis
+  - Meilleure définition possible
+  - Résolution fréquentielle : Δf = 1000/2048 = 0.49 Hz
+  - Pic très étroit, presque une ligne
+
+
+=== INTERPRÉTATION DES RÉSULTATS ===
+
+1) **Résolution fréquentielle** :
+   La résolution spectrale est définie par : Δf = Fs / N
+   
+   Plus N est grand, plus Δf est petit, donc meilleure est la résolution.
+   
+   La résolution détermine la capacité à distinguer deux fréquences proches :
+   - À N = 128 : Δf = 7.81 Hz → deux fréquences espacées de moins de 7.81 Hz
+     sont indiscernables
+   - À N = 2048 : Δf = 0.49 Hz → on peut distinguer des fréquences espacées
+     de seulement 0.49 Hz
+
+2) **Largeur du pic (étalement spectral)** :
+   
+   Avec N petit (128, 256) :
+   → Peu de bins fréquentiels disponibles
+   → Le pic s'étale sur plusieurs bins
+   → Localisation imprécise de la fréquence
+   → Pic "flou" et large
+   
+   Avec N grand (1024, 2048) :
+   → Beaucoup de bins fréquentiels disponibles
+   → Le pic est concentré sur très peu de bins
+   → Localisation précise de la fréquence à 100 Hz
+   → Pic "net" et étroit
+
+3) **Relation entre N et le nombre d'échantillons du signal** :
+   
+   Signal : 1000 échantillons (Fs = 1000 Hz pendant 1 seconde)
+   
+   - Si N < 1000 : La FFT utilise les N premiers échantillons du signal
+   - Si N = 1000 : La FFT utilise tous les échantillons
+   - Si N > 1000 : La FFT ajoute des zéros (zero-padding)
+   
+   Le zero-padding (N > nombre d'échantillons) :
+   → Ne crée PAS de nouvelle information
+   → Permet une interpolation du spectre (plus de points calculés)
+   → Améliore la visualisation mais pas la résolution "réelle"
+   → Rend le pic plus "lisse" et mieux défini visuellement
+
+4) **Amplitude du pic** :
+   
+   On observe que l'amplitude augmente légèrement avec N car :
+   → Plus de points = meilleure concentration de l'énergie dans le bon bin
+   → Moins d'étalement de l'énergie sur les bins adjacents
+   → Représentation plus fidèle du signal d'origine
+
+5) **Compromis et choix pratique** :
+   
+   Augmenter N a des avantages MAIS aussi des contraintes :
+   
+   Avantages :
+   ✓ Meilleure résolution fréquentielle
+   ✓ Pics mieux définis et plus faciles à identifier
+   ✓ Meilleure précision de localisation
+   
+   Inconvénients :
+   ✗ Calcul plus long (complexité O(N log N))
+   ✗ Plus de mémoire nécessaire
+   ✗ Au-delà d'une certaine limite, pas de gain d'information réelle
+   
+   En pratique :
+   → Choisir N en puissance de 2 (optimisation FFT)
+   → N ≥ nombre d'échantillons pour utiliser toute l'information
+   → Compromis entre résolution souhaitée et temps de calcul
+
+
+=== CONCLUSION ===
+
+La résolution spectrale dépend directement du nombre de points N de la FFT :
+→ Plus N est grand, meilleure est la résolution (Δf = Fs/N)
+→ Un N faible donne des pics larges et imprécis
+→ Un N élevé donne des pics fins et bien localisés
+→ Le choix de N doit être un compromis entre précision et efficacité de calcul
+
+Important : La résolution "réelle" est limitée par la durée d'observation du signal.
+Augmenter N améliore la visualisation mais ne peut pas créer d'information qui
+n'existe pas dans le signal temporel capturé.
+
+D) Influence du déphasage sur le spectre
+
+Signaux analysés :
+- Y1 = sin(2πft + π/2)     → déphasage de +π/2 (équivalent à cos(2πft))
+- Y2 = sin(2πft + 3π/2)    → déphasage de +3π/2 (équivalent à -cos(2πft))
+
+Paramètres : Fs = 1000 Hz, f = 100 Hz, N = 512 points
+
+=== OBSERVATION ===
+
+Les spectres d'amplitude de Y1 et Y2 sont **strictement identiques** :
+- Même position du pic : à 100 Hz
+- Même amplitude du pic : ~500
+- Même forme générale du spectre
+- Aucune différence visible entre les deux spectres
+
+=== CONCLUSION ===
+
+**Le déphasage n'a AUCUNE influence sur le spectre d'amplitude.**
+
+Explication :
+
+1) **Nature de la FFT** :
+   La FFT décompose un signal en composantes complexes de la forme :
+   
+   X[k] = A[k] + j·B[k] = |X[k]| · e^(jφ[k])
+   
+   Avec :
+   - |X[k]| = module (amplitude) = √(A² + B²)
+   - φ[k] = phase = arctan(B/A)
+
+2) **Ce que nous affichons** :
+   En traçant abs(xf), nous affichons uniquement le module |X[k]|.
+   Cette représentation contient l'information sur les fréquences présentes
+   et leurs amplitudes, mais **ignore complètement la phase**.
+
+3) **Impact du déphasage** :
+   Un déphasage dans le domaine temporel se traduit par :
+   - Une modification de la phase φ[k] dans le domaine fréquentiel
+   - AUCUNE modification du module |X[k]|
+   
+   Mathématiquement :
+   sin(2πft + φ) ----FFT----> Module identique, Phase différente
+
+4) **Différence entre Y1 et Y2** :
+   
+   Domaine temporel :
+   - Y1 et Y2 sont décalés dans le temps (déphasage visible)
+   - Formes d'ondes différentes à un instant t donné
+   
+   Domaine fréquentiel (amplitude) :
+   - Spectres d'amplitude identiques
+   - Seule la phase (non affichée) diffère
+   - L'information de "quand" est perdue, seule "quelle fréquence" reste
+
+5) **Pour observer l'effet du déphasage** :
+   Il faudrait afficher le spectre de phase avec angle(xf) :
+   - Y1 et Y2 auraient des phases différentes
+   - L'information de déphasage serait visible
+   
+   Mais en pratique, le spectre d'amplitude est le plus utilisé car :
+   → Il montre quelles fréquences sont présentes
+   → Il est plus simple à interpréter
+   → La phase est souvent moins importante dans l'analyse spectrale
+
+**Résumé :**
+→ Le module de la FFT (spectre d'amplitude) ne dépend QUE de l'amplitude et de la fréquence
+→ Le déphasage temporel n'affecte QUE la phase du spectre (partie imaginaire)
+→ Deux signaux de même fréquence et même amplitude mais déphasés ont des spectres
+  d'amplitude identiques
+
+E) Analyse spectrale de signaux composites
+
+Signaux analysés :
+- E.1 : Somme de 3 sinusoïdes de fréquences 10, 500 et 1000 Hz, amplitude 1 pour chacune
+- E.2 : Somme de 3 sinusoïdes de fréquences 10, 500 et 1000 Hz, amplitudes 10, 1 et 1
+
+Paramètres choisis :
+- Fréquence maximale : fmax = 1000 Hz
+- Fréquence d'échantillonnage : Fs = 5000 Hz (5 × fmax)
+- Nombre de points FFT : N = 2048 points
+- Résolution fréquentielle : Δf = 5000/2048 ≈ 2.44 Hz
+
+=== OBSERVATIONS ===
+
+E.1) Signaux d'amplitude identique (1, 1, 1) :
+- Le spectre présente 3 pics distincts à 10 Hz, 500 Hz et 1000 Hz
+- Les 3 pics ont approximativement la même amplitude (~2500)
+- Les pics sont bien séparés et facilement identifiables
+- Aucune interférence entre les différentes composantes fréquentielles
+- Le spectre de la somme = somme des spectres individuels (linéarité de la FFT)
+
+E.2) Signaux d'amplitude différente (10, 1, 1) :
+- Le spectre présente toujours 3 pics distincts aux mêmes fréquences
+- Le pic à 10 Hz est beaucoup plus grand (~25000) que les autres (~2500)
+- Le rapport d'amplitude entre les pics correspond aux rapports des signaux temporels
+- Le pic à 10 Hz domine le spectre, reflétant sa plus grande amplitude temporelle
+- Les pics à 500 Hz et 1000 Hz restent visibles malgré l'écart d'amplitude
+
+=== INTERPRÉTATION ===
+
+1) **Linéarité de la FFT** :
+   La FFT est une transformation linéaire :
+   
+   FFT(S1 + S2 + S3) = FFT(S1) + FFT(S2) + FFT(S3)
+   
+   → Le spectre de la somme est la somme des spectres
+   → Chaque composante fréquentielle est préservée
+   → Pas de création de nouvelles fréquences (pas d'intermodulation)
+
+2) **Conservation des amplitudes relatives** :
+   Le rapport des amplitudes spectrales reflète le rapport des amplitudes temporelles :
+   
+   - Si A1 = 10 × A2, alors |FFT(S1)| ≈ 10 × |FFT(S2)|
+   → La FFT préserve l'information d'amplitude
+   → On peut identifier les composantes dominantes du signal
+
+3) **Résolution fréquentielle suffisante** :
+   Avec Δf = 2.44 Hz, les 3 fréquences sont bien séparées :
+   
+   - Écart entre 10 Hz et 500 Hz : 490 Hz >> Δf
+   - Écart entre 500 Hz et 1000 Hz : 500 Hz >> Δf
+   → Les pics ne se chevauchent pas
+   → Identification claire de chaque composante
+
+4) **Importance du choix de Fs** :
+   Fs = 5000 Hz permet de respecter largement le critère de Shannon :
+   
+   - Fs = 5 × fmax >> 2 × fmax (Nyquist)
+   → Pas d'aliasing
+   → Représentation fidèle de toutes les composantes
+   → Qualité spectrale excellente
+
+=== CONCLUSION ===
+
+**Conditions pour constituer et observer correctement le spectre d'un signal de fréquence maximale f :**
+
+1) **CONDITION IMPÉRATIVE - Théorème de Shannon** :
+   
+   ┌─────────────────────────────┐
+   │  Fs > 2 × f   (minimum)     │
+   └─────────────────────────────┘
+   
+   → C'est la condition MINIMALE obligatoire
+   → Si Fs ≤ 2f : aliasing → spectre inexploitable
+   → En pratique : prendre Fs ≥ 5 × f pour une marge de sécurité
+
+2) **Résolution fréquentielle adaptée** :
+   
+   Δf = Fs / N  doit être suffisamment petit
+   
+   → Si on veut séparer deux fréquences espacées de Δf_signal, il faut :
+      Δf < Δf_signal
+   → Plus N est grand, meilleure est la résolution
+   → Compromis entre résolution et temps de calcul
+
+3) **Durée d'observation suffisante** :
+   
+   La résolution "réelle" est limitée par : Δf_min = 1 / T_observation
+   
+   → Pour observer une fréquence de 10 Hz avec précision, il faut T ≥ 0.1 s
+   → Dans ce TP : T = 1 s permet Δf_min = 1 Hz (suffisant pour toutes les fréquences)
+
+4) **Nombre de points N en puissance de 2** :
+   
+   → Optimisation de l'algorithme FFT (complexité O(N log N))
+   → N = 128, 256, 512, 1024, 2048, 4096, ...
+   → Calcul plus rapide
+
+5) **Rapport signal/bruit** :
+   
+   → Les composantes de faible amplitude doivent être au-dessus du bruit
+   → Dans notre cas (signaux purs synthétiques) : pas de problème
+   → En pratique (signaux réels) : importance du filtrage et de l'amplification
+
+
+**SYNTHÈSE FINALE :**
+
+Pour observer correctement le spectre d'un signal de fréquence maximale f :
+
+✓ Fs > 2f    (OBLIGATOIRE - Shannon)
+✓ Fs ≥ 5f    (RECOMMANDÉ - marge de sécurité)
+✓ N ≥ Fs     (pour utiliser tous les échantillons)
+✓ Δf < écart minimal entre fréquences à distinguer
+✓ T assez long pour capturer les basses fréquences (T ≥ quelques périodes de fmin)
+
+➔ Ces conditions garantissent un spectre fidèle, sans aliasing, avec une résolution 
+  suffisante pour identifier toutes les composantes fréquentielles du signal.
+
