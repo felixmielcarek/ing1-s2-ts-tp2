@@ -1,0 +1,61 @@
+TP 2
+Génération et analyse de signaux sur Matlab
+A) Signal sinusoïdal
+
+Créer un signal échantillonné comme suit :
+Fs=1000;%
+Ts=1/Fs;%
+t=0:Ts:1-Ts;
+f=100; % Le signal
+x=sin(2*pi*f*t);
+subplot(2,1,1);
+plot(t,x,'r');
+xf=fft(x,512);
+subplot(2,1,2);
+plot(abs(xf));
+
+Conseil : sauvegarder le script dans un fichier .m
+Interprétation
+
+Commenter les différentes commandes de la génération de ce signal.
+La FFT (Fast Fourrier Transform) permet une représentation du spectre du signal x(t).
+Nous convenons que le nombre d’échantillons sur l’axe des fréquences est
+nécessairement une puissance de 2. L’axe des fréquences est indexé de 1 à 512 dans
+cet exemple.
+Sachant que le pic à gauche correspond à la valeur de la fréquence de la sinusoïde.
+A quelle valeur de fréquence correspondrait le pic de droite ?
+Conseil : repérer la valeur de l’abscisse du pic de l’échantillon avec l’aide du curseur.
+A quelle valeur de fréquence correspond l’échantillon 512 ?
+B) Modification de la fréquence d’échantillonnage du signal
+
+Ramener progressivement la fréquence Fs à 500, 300, 250 … puis 200 Hz et observer
+l’effet obtenu. Afficher les différents spectres avec l’axe des fréquences gradués en
+Hz. Interpréter les différents résultats.
+
+C) Modification du nombre de points d’analyse de la FFT
+
+Dans un premier temps, diminuer le nombre de points d’analyse d’abord à 256, 128,
+… Puis au contraire l’augmenter progressivement à 1024, 2048, … (toujours en
+puissance de 2).
+Expliquer l’amélioration ou la dégradation de la résolution du spectre affiché.
+
+D) Signal sinusoïdal déphasé
+Afficher le spectre des signaux suivants :
+
+Y1 = sin(2*pi*f*t+pi/2);
+Y2 = sin(2*pi*f*t+3*pi/2);
+Conclure sur une éventuelle influence du déphasage sur l’aspect du spectre.
+
+E) Traitements de signaux sinusoïdaux
+
+a) On considère 3 signaux de fréquence 10, 500 et 1000 Hz de même amplitude « 1 »
+et toujours pendant une période de 1 seconde.
+Afficher le spectre de la somme de ces trois signaux après avoir déterminé la
+fréquence d’échantillonnage adaptée et choisi le nombre de points d’analyse par FFT.
+b) Même travail en affectant à ces trois signaux les amplitudes respectives suivantes
+10, 1 et 1.
+
+Conclusion : sous quelle condition la FFT permet-elle de constituer et
+d’observer correctement le spectre d’un signal dont la fréquence maximale
+est f ?
+
